@@ -155,7 +155,6 @@ fn parse_contract_result(s: String) -> Result<String, String> {
 async fn main() -> Result<(), Box<dyn Error>> {
     let contract_address = "0xFd35805FECF1d928ec753bfc0e2AFa1068124fe4".parse::<Address>()?;
 
-    // let rpc_url = format!("https://sepolia.infura.io/v3/{}", dotenv!("INFURA_API_KEY")); 
     let rpc_url = format!("https://linea-sepolia.blockpi.network/v1/rpc/public");
     let provider = Provider::<Http>::try_from(rpc_url.as_str())?;
     let chain_id = provider.get_chainid().await?;
@@ -176,12 +175,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
         Err(err) => println!("Registering failed: {}", err),
     }
  
-    // let mut tx = contract.increase_credit(U256::from(100)).send().await?.await?;
-    // println!("Transaction Receipt: {}", serde_json::to_string(&tx)?);
-
-    // let value = contract.get_url().call().await?;
-    // println!("{}", value);
-
     let accumulate_tokens = Arc::new(AtomicU64::new(0));
 
     println!("Starting LLM service...");
