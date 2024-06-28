@@ -1,0 +1,16 @@
+[package]
+name = "sidecar"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+dotenv_codegen = "0.15.0"
+ethers = "2.0.14"
+ethers-contract = "2.0.14"
+ethers-core = "2.0.14"
+ethers-middleware = "2.0.14"
+regex = "1.10.5"
+serde_json = "1.0.117"
+signal-hook = "0.3.17"
+timeout-readwrite = "0.3.3"
+tokio = { version = "1.38.0", features = ["rt-multi-thread", "macros"] }

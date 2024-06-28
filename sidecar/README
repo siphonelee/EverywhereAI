@@ -1,0 +1,11 @@
+How to run:
+
+1. Get LLaMa-3 AI model binary of llamafile:
+curl -O --location "https://huggingface.co/Mozilla/Meta-Llama-3-8B-Instruct-llamafile/resolve/main/Meta-Llama-3-8B-Instruct.Q5_K_M.llamafile"
+chmod +x ./Meta-Llama-3-8B-Instruct.Q5_K_M.llamafile
+
+2. Set environment variables in .env file:
+WALLET_PRIV_KEY=your wallet private key
+REGISTER_URL=the url the AI model service to be published on
+
+3. cargo run --release
