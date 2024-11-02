@@ -1,6 +1,6 @@
 import { createThirdwebClient } from "thirdweb";
 import { getContract } from "thirdweb";
-import { lineaSepolia } from "./linea-sepolia";
+import { chainInfo } from "./chain_info";
 
 // Replace this with your client ID string
 // refer to https://portal.thirdweb.com/typescript/v5/client on how to get a client ID
@@ -16,6 +16,6 @@ export const client = createThirdwebClient({
 
 export const contract = getContract({
   client,
-  chain: lineaSepolia,
-  address: "0xFd35805FECF1d928ec753bfc0e2AFa1068124fe4",
+  chain: chainInfo,
+  address: "0x0b301079281af307A3A02a334b3496339353EF27",
 });

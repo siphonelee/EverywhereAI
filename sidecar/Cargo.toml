@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 dotenv_codegen = "0.15.0"
-ethers = "2.0.14"
+ethers = { version = "2.0.14", features = ["legacy"]}
 ethers-contract = "2.0.14"
 ethers-core = "2.0.14"
 ethers-middleware = "2.0.14"

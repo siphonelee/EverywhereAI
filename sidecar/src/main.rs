@@ -20,6 +20,7 @@ use signal_hook::consts::TERM_SIGNALS;
 use std::marker::{Send, Sync};
 use std::fmt::Debug;
 use tokio::time::{sleep};
+use ethers_middleware::gas_escalator::{GasEscalatorMiddleware, GeometricGasPrice, Frequency};
 
 #[macro_use]
 extern crate dotenv_codegen;
@@ -29,6 +30,8 @@ use ethers_core::{
 };
 
 abigen!(IAgent, "./src/Agent.json");
+const CONTRACT_ADDR: &str = "0x0b301079281af307A3A02a334b3496339353EF27";
+const RPC_URL: &str = "https://aia-dataseed1-testnet.aiachain.org";
 
 fn parse_log(stream: impl Read+AsRawFd, mut _output: impl Write, stop_flag: Arc<AtomicBool>, accumulate_tokens: Arc<AtomicU64>) -> Result<(), Box<dyn Error>> {
     let flag = "server listening at";
@@ -88,8 +91,8 @@ fn start_llm(accumulate_tokens: Arc<AtomicU64>, stop_flag: Arc<AtomicBool>) -> R
         flag::register(*sig, stop_flag.clone())?;
     }
 
-    let mut child = Command::new("./Meta-Llama-3-8B-Instruct.Q5_K_M.llamafile")
-        .args(["--nobrowser", "--unsecure"])
+    let mut child = Command::new("./Llama-3.2-3B-Instruct.Q6_K.llamafile")
+        .args(["--nobrowser", "--server"])
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .spawn()
@@ -153,11 +156,13 @@ fn parse_contract_result(s: String) -> Result<String, String> {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    let contract_address = "0xFd35805FECF1d928ec753bfc0e2AFa1068124fe4".parse::<Address>()?;
+    let contract_address = CONTRACT_ADDR.parse::<Address>()?;
 
-    let rpc_url = format!("https://linea-sepolia.blockpi.network/v1/rpc/public");
-    let provider = Provider::<Http>::try_from(rpc_url.as_str())?;
+    let provider = Provider::<Http>::try_from(RPC_URL)?;
     let chain_id = provider.get_chainid().await?;
+    // Escalate gas prices
+    let escalator = GeometricGasPrice::new(1.125, 60u64, None::<u64>);
+    let provider = GasEscalatorMiddleware::new(provider, escalator, Frequency::PerBlock);
 
     let wallet = dotenv!("WALLET_PRIV_KEY").parse::<LocalWallet>()?;
     let wallet = wallet.with_chain_id(chain_id.as_u64());
@@ -191,7 +196,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     println!("Unregistering from contract...");
     let tx = contract.unregister().send().await?.await?;
     match parse_contract_result(serde_json::to_string(&tx)?) {
-        Ok(hash) => println!("Successfully registered, transaction hash: {}", hash),
+        Ok(hash) => println!("Successfully unregistered, transaction hash: {}", hash),
         Err(err) => println!("Registering failed: {}", err),
     }
 
